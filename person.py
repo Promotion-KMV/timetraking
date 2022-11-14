@@ -48,7 +48,7 @@ class State(BaseModel):
     worktime: WorkTime
 
     @staticmethod
-    def meeting_time(data):
+    def write_meeting_time(data):
         """Метод для записи встечи в файл"""
         with open(settings.file_state, 'w+') as file:
             json.dump(data, file)
@@ -79,7 +79,7 @@ class State(BaseModel):
         end_day_work = int(self.worktime.end_work_hour) * 60 + int(self.worktime.end_work_minute)
         meeting_file = {self.worktime.person.full_name(): [[start_meet, end_meet], [start_day_work, end_day_work]]}
         if self.is_empty_file():
-            self.meeting_time(meeting_file)
+            self.write_meeting_time(meeting_file)
             return
         data = self.read_meeting_time()
         self.check_correct_time(time_start_hour, time_start_minute, time_end_hour, time_end_minute)
@@ -90,7 +90,7 @@ class State(BaseModel):
                                                            int(time_end_hour) * 60 + int(time_end_minute)])
         else:
             data[self.worktime.person.full_name()] = [[start_meet, end_meet], [start_day_work, end_day_work]]
-        self.meeting_time(data)
+        self.write_meeting_time(data)
 
     def get_free_time(self):
         """Метод для просмотра свободного времени сотрудника"""
