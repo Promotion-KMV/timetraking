@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from typing import List
 
 from loguru import logger
@@ -48,11 +49,11 @@ class State(BaseModel):
     worktime: WorkTime
 
     @staticmethod
-    def write_meeting_time(data):
+    def write_meeting_time(data, person):
         """Метод для записи встечи в файл"""
         with open(settings.file_state, 'w+') as file:
             json.dump(data, file)
-        return logger.success('Запись успешно добавленна')
+        return logger.success(f'Запись сотруднику {person} успешно добавленна')
 
     @staticmethod
     def read_meeting_time():
@@ -79,7 +80,7 @@ class State(BaseModel):
         end_day_work = int(self.worktime.end_work_hour) * 60 + int(self.worktime.end_work_minute)
         meeting_file = {self.worktime.person.full_name(): [[start_meet, end_meet], [start_day_work, end_day_work]]}
         if self.is_empty_file():
-            self.write_meeting_time(meeting_file)
+            self.write_meeting_time(meeting_file, self.worktime.person.full_name())
             return
         data = self.read_meeting_time()
         self.check_correct_time(time_start_hour, time_start_minute, time_end_hour, time_end_minute)
@@ -90,7 +91,7 @@ class State(BaseModel):
                                                            int(time_end_hour) * 60 + int(time_end_minute)])
         else:
             data[self.worktime.person.full_name()] = [[start_meet, end_meet], [start_day_work, end_day_work]]
-        self.write_meeting_time(data)
+        self.write_meeting_time(data, self.worktime.person.full_name())
 
     def get_free_time(self):
         """Метод для просмотра свободного времени сотрудника"""
@@ -201,4 +202,8 @@ work_4 = WorkTime(person=person_4, start_work_hour=12, start_work_minute=5, end_
 
 State(worktime=work_3).append_time_meet(14, 55, 15, 45)
 State(worktime=work_2).append_time_meet(12, 55, 13, 45)
-# print(State(worktime=work_4).get_free_time())
+State(worktime=work_4).append_time_meet(14, 15, 17, 45)
+time.sleep(0.2)
+print(f'вывод свободного времени сотрудника - {State(worktime=work_4).get_free_time()}')
+print(f'вывод свободного времени сотрудника - {State(worktime=work_2).get_free_time()}')
+print(f"вывод свободного времени списка сотрудников - {get_free_time_persons(['jane cory', 'liam neeson', 'ian mcKellen', 'tom hiddleston'])}")
