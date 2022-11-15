@@ -57,7 +57,7 @@ class State(BaseModel):
     @staticmethod
     def read_meeting_time():
         """Метода для получения данных из файла"""
-        with open(settings.file_state, 'r') as file:
+        with open(settings.file_state, 'r+') as file:
             data = json.load(file)
         return data
 
@@ -143,6 +143,9 @@ class State(BaseModel):
     @staticmethod
     def is_empty_file():
         """Проверка на пустоту файла"""
+        if not os.path.exists(settings.file_state):
+            create_file = open(settings.file_state, 'w')
+            create_file.close()
         return os.stat(settings.file_state).st_size == 0
 
 
@@ -169,7 +172,7 @@ def get_all_free_time(person: str, interval_person: List[list], work_time: list)
 def get_free_time_persons(lst):
     """Получение данных о времени работы сотрудников"""
     try:
-        with open(settings.file_state, 'r') as file:
+        with open(settings.file_state, 'r+') as file:
             data = json.load(file)
     except Exception:
         logger.info('У сотрудников нет занятых слотов')
@@ -196,5 +199,6 @@ work_3 = WorkTime(person=person_3, start_work_hour=7, start_work_minute=00, end_
 work_4 = WorkTime(person=person_4, start_work_hour=12, start_work_minute=5, end_work_hour=19, end_work_minute=10)
 
 
-# print(State(worktime=work_2).append_time_meet(12, 55, 13, 45))
-print(State(worktime=work_4).get_free_time())
+State(worktime=work_3).append_time_meet(14, 55, 15, 45)
+State(worktime=work_2).append_time_meet(12, 55, 13, 45)
+# print(State(worktime=work_4).get_free_time())
